@@ -1,0 +1,20 @@
+<idea-plugin>
+    <id>mock.postman</id>
+    <name>Mock Postman</name>
+    <vendor email="higuokai@gamil.com" url="none">None</vendor>
+
+    <description>模拟Postman, 发送HTTP请求的Idea插件(自用), v1.0只HTTP请求</description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <executor implementation="mock.request.http.gui.executors.CustomRunExecutor" id="CustomRunExecutor"/>
+    </extensions>
+
+    <actions>
+        <action id="request.client.view.action" class="mock.request.http.gui.action.MockPostmanToolsAction"
+                text="Mock Postman" description="Mock postman action">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
