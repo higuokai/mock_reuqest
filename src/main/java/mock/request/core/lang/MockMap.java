@@ -24,11 +24,7 @@ public class MockMap{
     public <T> T get(Object key, Class<T> clz) {
         Object value = container.get(key);
         if (value != null) {
-            Class<?> aClass = value.getClass();
-            if (aClass.equals(clz)) {
                 return (T)value;
-            }
-            return null;
         }
         return null;
     }

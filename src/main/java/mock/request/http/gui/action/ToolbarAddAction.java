@@ -3,8 +3,9 @@ package mock.request.http.gui.action;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import mock.request.core.lang.MockMap;
 import mock.request.http.boot.Environment;
-import mock.request.http.model.ComponentHolder;
+import mock.request.http.model.table.MockJTextField;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -26,9 +27,16 @@ public class ToolbarAddAction extends AnAction {
         // 获取当前table
         JTable activeJTable = Environment.getInstance().getComponentHolder().getCurrentJTable();
         if (activeJTable != null) {
-            // 不管哪个table, 直接添加一个空白
-            DefaultTableModel tableModel = (DefaultTableModel) activeJTable.getModel();
-            tableModel.addRow(new Object[]{Boolean.FALSE, "", ""});
+            String name = activeJTable.getName();
+            if ("formDataJTable".equals(name)) {
+                MockMap mockMap = MockMap.builder().put("project", e.getProject())
+                        .put("jTextField", new MockJTextField()).getInstance();
+                DefaultTableModel tableModel = (DefaultTableModel) activeJTable.getModel();
+                tableModel.addRow(new Object[]{Boolean.FALSE, "", mockMap, Boolean.FALSE, null});
+            } else {
+                DefaultTableModel tableModel = (DefaultTableModel) activeJTable.getModel();
+                tableModel.addRow(new Object[]{Boolean.FALSE, "", ""});
+            }
         }
     }
 }

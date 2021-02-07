@@ -8,22 +8,24 @@ import mock.request.http.gui.action.ToolBarImportAction;
 import mock.request.http.gui.action.ToolbarAddAction;
 import mock.request.http.gui.action.ToolbarDeleteAction;
 import mock.request.http.model.ComponentHolder;
-import mock.request.http.model.MockCellEditor;
+import mock.request.http.model.table.*;
 import mock.request.http.model.worker.ChangeWorker;
 import mock.request.http.model.worker.HttpWorker;
 import mock.request.http.util.JsonDocumentListener;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
  *  tool window主体部分
@@ -182,7 +184,7 @@ public class MainWindow {
         // 初始化headers页签JTable (添加column等)
         this.initJTable(headersTable);
         // 初始化body页签 form-data JTable (添加column等)
-        this.initJTable(formDataJTable);
+        this.initFormDataJTable(formDataJTable);
         // 初始化body页签 urlencoded JTable (添加column等)
         this.initJTable(urlEncodedJTable);
 
@@ -231,6 +233,52 @@ public class MainWindow {
         valueColumn.setResizable(false);
         checkColumn.setMinWidth(25);
         checkColumn.setMaxWidth(25);
+    }
+
+    private void initFormDataJTable(JTable formDataJTable) {
+        formDataJTable.putClientProperty("terminateEditOnFocusLost", true);
+        DefaultTableModel tableModel = (DefaultTableModel) formDataJTable.getModel();
+
+        // 设置列数及列名
+        tableModel.addColumn(" ");
+        tableModel.addColumn("KEY");
+        tableModel.addColumn("VALUE");
+        tableModel.addColumn("");
+        tableModel.addColumn("");
+        // 选择列
+        TableColumn checkColumn = formDataJTable.getColumnModel().getColumn(0);
+        checkColumn.setCellEditor(new DefaultCellEditor(new JCheckBox()));
+        checkColumn.setCellRenderer(formDataJTable.getDefaultRenderer(Boolean.class));
+        checkColumn.setMinWidth(25);
+        checkColumn.setMaxWidth(25);
+
+        // Key
+        TableColumn keyColumn = formDataJTable.getColumnModel().getColumn(1);
+        keyColumn.setCellEditor(new MockCellEditor(new JTextField()));
+        keyColumn.setCellRenderer(formDataJTable.getDefaultRenderer(String.class));
+        keyColumn.setResizable(false);
+
+        // value
+        TableColumn valueColumn = formDataJTable.getColumnModel().getColumn(2);
+        valueColumn.setCellEditor(new MockCellEditor(new JTextField()));
+        valueColumn.setCellRenderer(formDataJTable.getDefaultRenderer(String.class));
+        valueColumn.setResizable(false);
+
+        // 是否文件
+        TableColumn fileCheckColumn = formDataJTable.getColumnModel().getColumn(3);
+        fileCheckColumn.setCellEditor(new JTableCheckBoxEditor(new JCheckBox()));
+        fileCheckColumn.setCellRenderer(formDataJTable.getDefaultRenderer(Boolean.class));
+        fileCheckColumn.setMinWidth(25);
+        fileCheckColumn.setMaxWidth(25);
+
+        // 上传
+        TableColumn fileColumn = formDataJTable.getColumnModel().getColumn(4);
+        fileColumn.setCellEditor(new JTableButtonEditor());
+        fileColumn.setCellRenderer(new JTableButtonRender());
+        keyColumn.setResizable(false);
+
+        // 对tableModel增强
+        DefaultTableModel model = (DefaultTableModel) formDataJTable.getModel();
     }
 
     // 设置组件名字及添加到holder中
