@@ -46,4 +46,8 @@ public class MockMap{
         }
     }
 
+    @Override
+    public String toString() {
+        return "MockMap:" + container.toString();
+    }
 }

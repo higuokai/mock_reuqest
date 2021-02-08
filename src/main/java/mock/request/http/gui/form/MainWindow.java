@@ -12,20 +12,20 @@ import mock.request.http.model.table.*;
 import mock.request.http.model.worker.ChangeWorker;
 import mock.request.http.model.worker.HttpWorker;
 import mock.request.http.util.JsonDocumentListener;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.util.Objects;
 
 /**
  *  tool window主体部分
@@ -61,7 +61,6 @@ public class MainWindow {
     private JPanel responsePanel;
     private JLabel protocolLabel;
 
-
     private JPanel paramsPanel;
     private JPanel headersPanel;
     private JPanel bodyPanel;
@@ -86,8 +85,9 @@ public class MainWindow {
     private JButton bodyBinaryButton;
     private JPanel bodyParentPanel;
     private JPanel binaryJPanel;
-    private JPanel responseJPanel;
-    private JLabel responseJLabel;
+    private JTextArea responseTextArea;
+    private JScrollPane historyScrollPane;
+    private JTree historyTree;
 
     /**
      * 初始化GUI
@@ -192,6 +192,21 @@ public class MainWindow {
         sendButton.addActionListener(e -> {
             new HttpWorker().buildAndSend();
         });
+
+        // 初始化历史记录
+        historyTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        DefaultMutableTreeNode historyRoot = new DefaultMutableTreeNode("History");
+        ((DefaultTreeModel)historyTree.getModel()).setRoot(historyRoot);
+        historyTree.expandPath(new TreePath(historyRoot));
+
+        // 树选中事件
+        historyTree.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+                TreePath path = e.getPath();
+                System.out.println(path);
+            }
+        });
     }
 
     public JPanel getContent() {
@@ -237,14 +252,17 @@ public class MainWindow {
 
     private void initFormDataJTable(JTable formDataJTable) {
         formDataJTable.putClientProperty("terminateEditOnFocusLost", true);
-        DefaultTableModel tableModel = (DefaultTableModel) formDataJTable.getModel();
+
+        // 对tableModel增强
+        FormDataTableModel newModel = new FormDataTableModel();
+        formDataJTable.setModel(newModel);
 
         // 设置列数及列名
-        tableModel.addColumn(" ");
-        tableModel.addColumn("KEY");
-        tableModel.addColumn("VALUE");
-        tableModel.addColumn("");
-        tableModel.addColumn("");
+        newModel.addColumn(" ");
+        newModel.addColumn("KEY");
+        newModel.addColumn("VALUE");
+        newModel.addColumn("");
+        newModel.addColumn("");
         // 选择列
         TableColumn checkColumn = formDataJTable.getColumnModel().getColumn(0);
         checkColumn.setCellEditor(new DefaultCellEditor(new JCheckBox()));
@@ -277,9 +295,11 @@ public class MainWindow {
         fileColumn.setCellRenderer(new JTableButtonRender());
         keyColumn.setResizable(false);
 
-        // 对tableModel增强
-        DefaultTableModel model = (DefaultTableModel) formDataJTable.getModel();
+        this.tableModel = newModel;
+
     }
+
+    private DefaultTableModel tableModel;
 
     // 设置组件名字及添加到holder中
     private void setName() {
@@ -322,8 +342,8 @@ public class MainWindow {
         bodyBinaryButton.setName("bodyBinaryButton");
         bodyParentPanel.setName("bodyParentPanel");
         binaryJPanel.setName("binaryJPanel");
-        responseJPanel.setName("responseJPanel");
-        responseJLabel.setName("responseJLabel");
+        responseTextArea.setName("responseTextArea");
+        historyTree.setName("historyTree");
     }
 
     public JTabbedPane getParamsPane() {
@@ -362,11 +382,6 @@ public class MainWindow {
         return urlField;
     }
 
-
-    public JCheckBox getSaveFileCheckBox() {
-        return saveFileCheckBox;
-    }
-
     public JRadioButton getNoneRadioButton() {
         return noneRadioButton;
     }
@@ -391,72 +406,8 @@ public class MainWindow {
         return rawTypeComboBox;
     }
 
-    public JPanel getMyToolWindowContent() {
-        return myToolWindowContent;
-    }
-
-    public JSplitPane getLeftRightSplitPane() {
-        return leftRightSplitPane;
-    }
-
-    public JPanel getLeftPanel() {
-        return leftPanel;
-    }
-
     public JLabel getSettingFileLocationLabel() {
         return settingFileLocationLabel;
-    }
-
-    public JTabbedPane getLeftTabledPane() {
-        return leftTabledPane;
-    }
-
-    public JPanel getHistoryPanel() {
-        return historyPanel;
-    }
-
-    public JPanel getGroupsPanel() {
-        return groupsPanel;
-    }
-
-    public JPanel getRightPanel() {
-        return rightPanel;
-    }
-
-    public JButton getSendButton() {
-        return sendButton;
-    }
-
-    public JSplitPane getRightSplitPane() {
-        return rightSplitPane;
-    }
-
-    public JPanel getParamsParentJPanel() {
-        return paramsParentJPanel;
-    }
-
-    public JPanel getResponsePanel() {
-        return responsePanel;
-    }
-
-    public JLabel getProtocolLabel() {
-        return protocolLabel;
-    }
-
-    public JPanel getParamsPanel() {
-        return paramsPanel;
-    }
-
-    public JPanel getHeadersPanel() {
-        return headersPanel;
-    }
-
-    public JPanel getBodyPanel() {
-        return bodyPanel;
-    }
-
-    public JPanel getCookiesPanel() {
-        return cookiesPanel;
     }
 
     public JScrollPane getFormDataJScrollPane() {
@@ -471,19 +422,15 @@ public class MainWindow {
         return rawJTextArea;
     }
 
-    public JButton getBodyBinaryButton() {
-        return bodyBinaryButton;
-    }
-
     public JPanel getBinaryJPanel() {
         return binaryJPanel;
     }
 
-    public JPanel getResponseJPanel() {
-        return responseJPanel;
+    public JTextArea getResponseJLabel() {
+        return responseTextArea;
     }
 
-    public JLabel getResponseJLabel() {
-        return responseJLabel;
+    public JTree getHistoryTree() {
+        return historyTree;
     }
 }

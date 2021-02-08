@@ -5,11 +5,11 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import mock.request.core.lang.MockMap;
 import mock.request.http.boot.Environment;
-import mock.request.http.model.table.MockJTextField;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /**
  *  侧边添加按钮
@@ -29,13 +29,11 @@ public class ToolbarAddAction extends AnAction {
         if (activeJTable != null) {
             String name = activeJTable.getName();
             if ("formDataJTable".equals(name)) {
-                MockMap mockMap = MockMap.builder().put("project", e.getProject())
-                        .put("jTextField", new MockJTextField()).getInstance();
                 DefaultTableModel tableModel = (DefaultTableModel) activeJTable.getModel();
-                tableModel.addRow(new Object[]{Boolean.FALSE, "", mockMap, Boolean.FALSE, null});
+                tableModel.addRow(new Object[]{Boolean.TRUE, "", "", Boolean.FALSE, null});
             } else {
                 DefaultTableModel tableModel = (DefaultTableModel) activeJTable.getModel();
-                tableModel.addRow(new Object[]{Boolean.FALSE, "", ""});
+                tableModel.addRow(new Object[]{Boolean.TRUE, "", ""});
             }
         }
     }
