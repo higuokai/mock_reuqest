@@ -3,6 +3,7 @@ package mock.request.http.boot;
 import mock.request.http.model.ComponentHolder;
 import mock.request.http.model.GUIPackageWorker;
 import mock.request.http.model.worker.ChangeWorker;
+import mock.request.http.model.worker.RuntimeChangeTextWorker;
 import mock.request.http.model.worker.SettingFileWorker;
 
 import javax.swing.*;
@@ -25,6 +26,8 @@ public class Environment {
     private ChangeWorker changeWorker;
 
     private ComponentHolder componentHolder;
+
+    private RuntimeChangeTextWorker runtimeChangeTextWorker;
 
     private final AtomicBoolean toolWindowLoadSuccess = new AtomicBoolean(false);
 
@@ -83,5 +86,13 @@ public class Environment {
 
     public AtomicBoolean getToolWindowLoadSuccess() {
         return toolWindowLoadSuccess;
+    }
+
+    public RuntimeChangeTextWorker getRuntimeChangeTextWorker() {
+        return runtimeChangeTextWorker;
+    }
+
+    public void setRuntimeChangeTextWorker(RuntimeChangeTextWorker runtimeChangeTextWorker) {
+        this.runtimeChangeTextWorker = runtimeChangeTextWorker;
     }
 }

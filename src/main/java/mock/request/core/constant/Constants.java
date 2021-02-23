@@ -16,6 +16,10 @@ public interface Constants {
 
     String TOOL_WINDOW_ID = "Mock Postman";
 
+    String TRUE_CODE = "1";
+
+    String FALSE_CODE = "0";
+
     String PROPERTIES_KEY_SETTING_FILE_LOCATION = StringUtils.join(PLUGIN_ID, ".", "setting.file.location.key");
 
     String PROPERTIES_KEY_URL = StringUtils.join(PLUGIN_ID, ".", "url");
@@ -33,6 +37,10 @@ public interface Constants {
     String PROPERTIES_KEY_BODY_PANEL = PLUGIN_ID + ".body_panel.index";
 
     String PROPERTIES_KEY_BODY_VISIBLE = Constants.PLUGIN_ID + ".body.visible.key";
+
+    String PROPERTIES_KEY_RESULT_TYPE = PLUGIN_ID + ".result.type.key";
+
+    String PROPERTIES_KEY_RESULT_EDITABLE = PLUGIN_ID + ".result.type.editable.key";
 
     String MOCK_POSTMAN_ACTION = "Mock postman";
 

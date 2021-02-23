@@ -8,8 +8,11 @@ import mock.request.core.utils.StringUtils;
 import mock.request.http.boot.Environment;
 import mock.request.http.gui.form.MainWindow;
 import mock.request.http.model.ComponentHolder;
+import mock.request.http.util.JsonDocumentListener;
 
 import javax.swing.*;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 import java.awt.*;
 import java.util.Map;
 
@@ -191,6 +194,19 @@ public class ChangeWorker {
         if (StringUtils.isNotEmpty(paramPanel)) {
             // 切换页签
             this.changeParamsJPanelByJPanelName(paramPanel);
+        }
+    }
+
+    public void updateRawType(MainWindow mainWindow, DocumentListener listener) {
+        JComboBox<String> rawTypeComboBox = mainWindow.getRawTypeComboBox();
+        String selectType = rawTypeComboBox.getSelectedItem().toString();
+        Document document = mainWindow.getRawJTextArea().getDocument();
+        if ("json".equals(selectType.toLowerCase())) {
+            // 添加监听
+            document.addDocumentListener(listener);
+        } else {
+            // 删除监听
+            document.removeDocumentListener(listener);
         }
     }
 }

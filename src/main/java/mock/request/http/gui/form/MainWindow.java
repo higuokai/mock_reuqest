@@ -11,6 +11,7 @@ import mock.request.http.model.ComponentHolder;
 import mock.request.http.model.table.*;
 import mock.request.http.model.worker.ChangeWorker;
 import mock.request.http.model.worker.HttpWorker;
+import mock.request.http.model.worker.RuntimeChangeTextWorker;
 import mock.request.http.util.JsonDocumentListener;
 
 import javax.swing.*;
@@ -25,6 +26,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Objects;
 
 /**
@@ -102,7 +105,8 @@ public class MainWindow {
         ChangeWorker worker = new ChangeWorker();
         environment.setChangeWorker(worker);
 
-
+        RuntimeChangeTextWorker runtimeWorker = new RuntimeChangeTextWorker();
+        environment.setRuntimeChangeTextWorker(runtimeWorker);
         // 各组件设置name/key
         setName();
 
@@ -170,7 +174,8 @@ public class MainWindow {
             worker.updateResultType(saveFileCheckBox.isSelected());
         });
 
-        rawJTextArea.getDocument().addDocumentListener(new JsonDocumentListener(this.rawJTextArea));
+//        rawJTextArea.getDocument().addDocumentListener(new JsonDocumentListener(this.rawJTextArea));
+
         // ----------------------------------------
         // ----------------------------------------
         // --------- 监听添加完成,初始化页面 ----------
@@ -200,11 +205,16 @@ public class MainWindow {
         historyTree.expandPath(new TreePath(historyRoot));
 
         // 树选中事件
-        historyTree.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                TreePath path = e.getPath();
-                System.out.println(path);
+        historyTree.addTreeSelectionListener(e -> {
+            TreePath path = e.getPath();
+            System.out.println(path);
+        });
+
+        JsonDocumentListener documentListener = new JsonDocumentListener(rawJTextArea);
+        rawTypeComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                // 修改类型, 判断是否应该添加listener
+                worker.updateRawType(this, documentListener);
             }
         });
     }
